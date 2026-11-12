@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Climbing Conditions</title>
+  <meta name="description" content="Bouldering conditions score and crag-selection tips from ECMWF forecasts and IRM/KMI observations.">
+  <meta name="theme-color" content="#1f3b33">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="favicon.svg" alt="" width="28" height="28">
+      <div>
+        <h1 data-i18n="app.title">Climbing Conditions</h1>
+        <p class="sub" data-i18n="app.subtitle"></p>
+      </div>
+    </div>
+    <div class="controls">
+      <label class="sr" for="region" data-i18n="app.region">Region</label>
+      <select id="region"></select>
+      <div class="seg" role="group" aria-label="Mode">
+        <button data-mode="comfort" data-i18n="app.comfort">Comfort</button>
+        <button data-mode="performance" data-i18n="app.performance">Performance</button>
+      </div>
+      <div class="seg" role="group" aria-label="Language">
+        <button data-lang="en">EN</button>
+        <button data-lang="fr">FR</button>
+      </div>
+      <button id="refresh" class="btn primary" hidden data-i18n="app.refresh">Refresh data</button>
+      <button id="settingsBtn" class="btn icon" aria-label="Settings" title="Settings">⚙</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="banner" class="banner" hidden></div>
+
+    <section class="hero card" id="hero">
+      <div class="ring" id="nowRing"><span id="nowScore">–</span><small>/10</small></div>
+      <div class="hero-text">
+        <div class="eyebrow"><span data-i18n="app.now">Now</span> · <span id="nowKind"></span></div>
+        <p id="nowDrivers" class="drivers"></p>
+        <div class="today-line">
+          <span class="pill" id="todayScore"></span>
+          <span id="todayWindow"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 data-i18n="app.tips">Tips</h2>
+      <ul id="tips" class="tips"></ul>
+      <p class="muted small" data-i18n="app.about"></p>
+    </section>
+
+    <section class="card">
+      <h2 data-i18n="app.outlook">5-day outlook</h2>
+      <div id="outlook" class="outlook"></div>
+    </section>
+
+    <section class="card">
+      <div class="row-between">
+        <h2 data-i18n="app.hourly">Hourly score</h2>
+        <span class="muted small" data-i18n="app.legend"></span>
+      </div>
+      <div class="chart-wrap"><svg id="chart" role="img" aria-label="Hourly score chart"></svg></div>
+      <div id="hourDetail" class="hour-detail muted small"></div>
+    </section>
+
+    <section class="card">
+      <h2 data-i18n="app.data">Data</h2>
+      <dl id="meta" class="meta"></dl>
+      <details>
+        <summary data-i18n="app.sources">Sources per variable</summary>
+        <table id="sources" class="sources"></table>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p>Forecast: contains modified ECMWF open data, © ECMWF, CC BY 4.0 · Observations: IRM/KMI open data, CC BY 4.0<span id="omAttr" hidden> · Fallback: Open-Meteo.com, CC BY 4.0</span>.</p>
+    <p>No warranty. Conditions only; always judge the rock on site.</p>
+  </footer>
+
+  <dialog id="settings">
+    <form method="dialog" class="settings">
+      <h2 data-i18n="app.settings">Settings</h2>
+      <label><span data-i18n="app.repo_label">Repository</span>
+        <input id="repoInput" placeholder="owner/repository" autocomplete="off"></label>
+      <label><span data-i18n="app.token_label">Token</span>
+        <input id="tokenInput" type="password" autocomplete="off" spellcheck="false"></label>
+      <p class="muted small" data-i18n="app.token_help"></p>
+      <div class="row-end">
+        <button value="cancel" class="btn" data-i18n="app.close">Close</button>
+        <button id="saveSettings" value="save" class="btn primary" data-i18n="app.save">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

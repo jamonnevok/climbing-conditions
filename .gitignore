@@ -1,0 +1,25 @@
+# working files (raw downloads are temporary and never committed)
+work/
+dist/
+*.grib
+*.grib2
+*.grb
+*.grb2
+*.idx
+*.bufr
+*.nc
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+pip-cache/
+# secrets / local
+.env
+*.token
+.DS_Store
+Thumbs.db
+step0_report.json

@@ -1,0 +1,69 @@
+# Rule-based tips. Evaluated per day on that day's climbing hours.
+# when.all / when.any: list of [fact, operator, value]. A value starting with "$"
+# refers to another fact. Operators: < <= > >= == !=
+# Higher priority shows first; only the top `max_tips` are shown.
+# `key` is the translation key in config/i18n/<lang>.json -> tips.<key>.
+# Available facts: see pipeline/tips.py (FACTS doc).
+max_tips: 4
+rules:
+  - id: poor_best_window
+    priority: 100
+    key: poor_best_window
+    when:
+      all:
+        - [day_score, "<", 4]
+        - [has_better_window, "==", true]
+  - id: recent_rain
+    priority: 90
+    key: recent_rain
+    when:
+      any:
+        - [rain_prev48_mm, ">=", 2]
+        - [wet_start_mm, ">", "$dry_ok_mm"]
+  - id: drying_time
+    priority: 85
+    key: drying_time
+    when:
+      all:
+        - [wet_start_mm, ">", "$dry_ok_mm"]
+        - [hours_to_dry, ">=", 0]
+  - id: not_drying
+    priority: 84
+    key: not_drying
+    when:
+      all:
+        - [wet_start_mm, ">", "$dry_ok_mm"]
+        - [hours_to_dry, "<", 0]
+  - id: humid_still
+    priority: 80
+    key: humid_still
+    when:
+      all:
+        - [wind_mean_ms, "<", 3]
+      any:
+        - [rh_mean, ">=", 80]
+        - [spread_mean_c, "<=", 2]
+  - id: strong_wind
+    priority: 75
+    key: strong_wind
+    when:
+      all:
+        - [wind_max_ms, ">=", 9]
+  - id: warm
+    priority: 70
+    key: warm
+    when:
+      all:
+        - [t_max_c, ">", "$temp_hi"]
+  - id: cold
+    priority: 70
+    key: cold
+    when:
+      all:
+        - [t_mean_c, "<", "$temp_lo"]
+  - id: sun_aspects
+    priority: 40
+    key: sun_aspects
+    when:
+      all:
+        - [sun_fraction, ">=", 0.3]

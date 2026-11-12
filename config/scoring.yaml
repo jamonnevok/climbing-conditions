@@ -1,0 +1,52 @@
+# Scoring parameters. All units metric. Edit freely, then re-deploy (the code
+# deploy re-scores the last inputs, no new download needed).
+modes:
+  comfort:
+    temp_ideal_c: [8, 18]
+    weights: {temperature: 30, moisture: 15, wetness: 25, rain: 10, wind: 10, sun: 10}
+    moisture: {rh_good: 65, rh_bad: 95, spread_good_c: 8, spread_bad_c: 1, rh_share: 0.5}
+  performance:
+    temp_ideal_c: [2, 12]
+    weights: {temperature: 25, moisture: 25, wetness: 30, rain: 10, wind: 5, sun: 5}
+    moisture: {rh_good: 55, rh_bad: 90, spread_good_c: 10, spread_bad_c: 2, rh_share: 0.5}
+
+temperature:
+  falloff_c: 10               # score reaches 0 this far outside the ideal band
+
+wetness:
+  # Water "film" on rock, in mm. Rain adds, drying removes each hour.
+  # drying [mm/h] = k_vpd * VPD[kPa] * (1 + k_wind * min(wind, wind_cap)) + k_rad * SW[W/m2] / 1000
+  max_mm: 4.0
+  very_wet_mm: 1.0            # >= this -> score capped (caps.very_wet) and wetness component = 0
+  dry_ok_mm: 0.2              # <= this counts as "dry enough"
+  k_vpd: 0.15
+  k_wind: 0.15
+  wind_cap_ms: 8
+  k_rad: 0.3
+
+rain:
+  active_mm_h: 0.2            # >= this in the current hour = active rain (cap)
+  heavy_mm_h: 1.0
+  lookahead_hours: 3
+
+wind:
+  # piecewise-linear curve [speed m/s, score 0-1]
+  curve: [[0, 0.6], [2, 1.0], [6, 1.0], [10, 0.4], [15, 0.0]]
+
+sun:
+  # sun_factor = measured shortwave / clear-sky estimate (0-1)
+  cool_side: {base: 0.5, gain: 0.5}   # below the middle of the ideal band: sun helps
+  warm_side: {base: 1.0, gain: -0.5}  # above it: sun hurts
+
+caps:
+  active_rain: 2
+  very_wet: 5
+
+daily:
+  hours_local: [8, 20]        # climbing day, local time [start, end)
+  window_lengths: [2, 3, 4]
+  window_tolerance: 0.3       # accept a longer window if its mean is within this of the best 2 h
+
+drivers:
+  min_loss: 0.5               # weighted points (out of 10) lost before a factor is named
+  max: 2

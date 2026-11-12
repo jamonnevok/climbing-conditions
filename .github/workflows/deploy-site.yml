@@ -1,0 +1,75 @@
+# Code/config change on main: test -> build -> deploy.
+# No new weather download: the last published inputs are re-scored with the new code/config.
+name: deploy-site
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "history/**"
+      - "**.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: weather-data
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Run tests
+        run: python -m pytest -q
+
+      - name: Configure GitHub Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Load previously published inputs
+        run: python -m pipeline fetch-previous --base-url "${{ steps.pages.outputs.base_url }}"
+
+      - name: Build static frontend
+        run: python -m pipeline site
+
+      - name: Re-score previous inputs with current code/config
+        run: python -m pipeline score --from-previous
+
+      - name: Validate generated data
+        run: python -m pipeline validate
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

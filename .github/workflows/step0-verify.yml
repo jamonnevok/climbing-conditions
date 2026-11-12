@@ -1,0 +1,25 @@
+# Re-run the Step 0 data-source verification at any time (manual only).
+name: step0-verify
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python scripts/step0_verify.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: step0-report
+          path: step0_report.json

@@ -1,0 +1,22 @@
+# Pipeline / data-source settings.
+forecast:
+  horizon_hours: 120          # forecast length shown from "now"
+  ecmwf:
+    resolution: "0p25"        # "0p25" (default) or "0p1" (verified available, ~6x larger download)
+    source: "ecmwf"           # ecmwf-opendata source name. "aws"/"google" mirrors exist but are UNVERIFIED in Step 0
+    model: "ifs"
+    step_hours: 3             # verified: 0-144 h by 3 h for 00/12 UTC runs
+    max_step_hours: 144
+    retries: 3
+    retry_wait_seconds: 20
+  openmeteo:
+    model: "ecmwf_ifs025"     # verified in Step 0
+observations:
+  lookback_hours: 72
+  min_records_per_hour: 4     # of 6 ten-minute records
+history:
+  enabled: true               # quiet daily run (observations only)
+  daily_lookback_hours: 48    # 24 h spin-up for the wetness state + 24 h written
+site:
+  repo_branch: main
+  update_workflow_file: update-weather.yml
