@@ -46,7 +46,8 @@
     "about": "Generic advice for the region. It cannot see your crag's microclimate.",
     "hours_short": "h",
     "days_short": "d",
-    "day_over": "The climbing day is over: pick another day in the outlook."
+    "day_over": "The climbing day is over: pick another day in the outlook.",
+    "local_time": "local time"
   },
   "vars": {
     "temperature": "Temperature",
@@ -70,7 +71,8 @@
     "cap_very_wet": "very wet rock",
     "limited_by": "Limited by {list}.",
     "good": "No major limiting factor.",
-    "and": "and"
+    "and": "and",
+    "cap_post_rain_recovery": "recovering after rain"
   },
   "tips": {
     "poor_best_window": "Poor day. Best upcoming window: {window_day} {window_start}–{window_end} (score {window_score}).",
