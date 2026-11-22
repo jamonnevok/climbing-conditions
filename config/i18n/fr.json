@@ -46,7 +46,8 @@
     "about": "Conseils génériques pour la région : le microclimat de votre site n'est pas pris en compte.",
     "hours_short": "h",
     "days_short": "j",
-    "day_over": "La journée de grimpe est terminée : choisissez un autre jour dans la tendance."
+    "day_over": "La journée de grimpe est terminée : choisissez un autre jour dans la tendance.",
+    "local_time": "heure locale"
   },
   "vars": {
     "temperature": "Température",
@@ -70,7 +71,8 @@
     "cap_very_wet": "le rocher très mouillé",
     "limited_by": "Limité par {list}.",
     "good": "Aucun facteur limitant majeur.",
-    "and": "et"
+    "and": "et",
+    "cap_post_rain_recovery": "séchage après la pluie"
   },
   "tips": {
     "poor_best_window": "Journée médiocre. Meilleur créneau à venir : {window_day} {window_start}–{window_end} (score {window_score}).",

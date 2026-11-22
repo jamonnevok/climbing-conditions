@@ -112,7 +112,9 @@ def score_rows(rows: list[dict], mode: str, cfg: dict, lat: float, lon: float) -
                 + (1.0 - rc["recovery_dry_share"]) * comp["moisture"]
             )
             recovery_cap = caps["active_rain"] + (10.0 - caps["active_rain"]) * recovery
-            score = min(score, recovery_cap)
+            if score > recovery_cap:
+                score = recovery_cap
+                drivers.append("cap_post_rain_recovery")
         if row["wet_mm"] >= wc["very_wet_mm"] and score > caps["very_wet"]:
             score = min(score, caps["very_wet"])
             drivers.append("cap_very_wet")
