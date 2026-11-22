@@ -110,3 +110,49 @@ def test_scores_always_within_0_10():
         rows = mk_rows(temp=temp, td=min(td, temp), precip=p, wind=w, wet=wet)
         score_rows(rows, "comfort", CFG, 50.47, 4.87)
         assert 0 <= rows[0]["score"]["comfort"] <= 10
+
+
+def test_active_rain_cliff_and_gradual_post_rain_recovery():
+    """Rain starts abruptly; recovery follows drying and decreasing moisture."""
+    from pipeline.wetness import simulate
+
+    weather = [
+        # dry lead-in
+        (0.00, 1.1, -2.0, 78, 2.0, 0),
+        # active rain: immediate cliff
+        (0.40, 1.2, 0.8, 90, 2.0, 5),
+        (0.48, 1.5, 1.1, 94, 2.0, 35),
+        # rain stops, but saturated air and residual wetness remain
+        (0.07, 1.5, 1.1, 94, 2.0, 57),
+        (0.07, 1.6, 1.0, 93, 2.0, 43),
+        (0.07, 1.6, 0.8, 92, 2.0, 22),
+        # progressively drier air and rock
+        (0.01, 2.0, 0.5, 88, 2.5, 20),
+        (0.00, 3.0, 0.0, 82, 3.0, 60),
+        (0.00, 4.0, 0.0, 75, 3.0, 100),
+        (0.00, 5.0, 0.0, 70, 3.0, 120),
+    ]
+
+    rows = []
+    for i, (precip, temp, td, rh, wind, sw) in enumerate(weather):
+        r = row(temp=temp, td=td, rh=rh, precip=precip, wind=wind, sw=sw)
+        r["t"] = iso(NOW.replace(hour=6, minute=0) + timedelta(hours=i))
+        r["kind"] = "fc"
+        rows.append(r)
+
+    simulate(rows, CFG["wetness"])
+    score_rows(rows, "performance", CFG, 50.47, 4.87)
+
+    scores = [r["score"]["performance"] for r in rows]
+
+    # Active rain retains the sharp, realistic cliff.
+    assert scores[1] == pytest.approx(CFG["caps"]["active_rain"])
+    assert scores[2] == pytest.approx(CFG["caps"]["active_rain"])
+
+    # Stopping rain does not create a reverse cliff.
+    assert scores[3] <= 6.0
+    assert scores[3] - scores[2] <= 4.0
+
+    # Recovery is progressive as wetness and atmospheric moisture decrease.
+    assert scores[3] < scores[4] < scores[5] < scores[6]
+    assert scores[7] >= scores[6]

@@ -67,6 +67,7 @@ def score_rows(rows: list[dict], mode: str, cfg: dict, lat: float, lon: float) -
     wsum = sum(wts.values())
     rc, wc, caps = cfg["rain"], cfg["wetness"], cfg["caps"]
     peak_lo = max(x for x, y in cfg["wind"]["curve"] if y == max(yy for _, yy in cfg["wind"]["curve"]))
+    last_active_rain = None
     for i, row in enumerate(rows):
         row.setdefault("score", {})
         row.setdefault("comp", {})
@@ -91,9 +92,27 @@ def score_rows(rows: list[dict], mode: str, cfg: dict, lat: float, lon: float) -
         }
         score = 10.0 * sum(wts[k] * comp[k] for k in comp) / wsum
         drivers = []
-        if row["precip_mm"] >= rc["active_mm_h"] and score > caps["active_rain"]:
-            score = caps["active_rain"]
-            drivers.append("cap_active_rain")
+        active_rain = row["precip_mm"] >= rc["active_mm_h"]
+        if active_rain:
+            last_active_rain = i
+            if score > caps["active_rain"]:
+                score = caps["active_rain"]
+                drivers.append("cap_active_rain")
+        elif last_active_rain is not None and i - last_active_rain <= rc["recovery_hours"]:
+            # Rain onset is an immediate cliff, but recovery is gradual.
+            # Residual wetness carries most of the recovery signal; humidity and
+            # dew-point spread prevent an unrealistic rebound in saturated air.
+            dry_progress = lin(
+                row["wet_mm"],
+                rc["recovery_wet_mm"],
+                0.0,
+            )
+            recovery = (
+                rc["recovery_dry_share"] * dry_progress
+                + (1.0 - rc["recovery_dry_share"]) * comp["moisture"]
+            )
+            recovery_cap = caps["active_rain"] + (10.0 - caps["active_rain"]) * recovery
+            score = min(score, recovery_cap)
         if row["wet_mm"] >= wc["very_wet_mm"] and score > caps["very_wet"]:
             score = min(score, caps["very_wet"])
             drivers.append("cap_very_wet")

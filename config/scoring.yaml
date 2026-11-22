@@ -29,6 +29,9 @@ rain:
   active_mm_h: 0.2            # >= this in the current hour = active rain (cap)
   heavy_mm_h: 1.0
   lookahead_hours: 3
+  recovery_hours: 6             # gradual score recovery after active rain stops
+  recovery_wet_mm: 0.5          # wetness at which post-rain recovery starts from zero
+  recovery_dry_share: 0.70      # balance: rock drying vs atmospheric moisture
 
 wind:
   # piecewise-linear curve [speed m/s, score 0-1]
