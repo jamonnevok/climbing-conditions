@@ -26,5 +26,5 @@ def simulate(rows: list[dict], cfg: dict, initial_mm: float = 0.0) -> None:
             row["wet_mm"] = None
             continue
         p, t, td, wind, sw = need
-        w = min(cfg["max_mm"], max(0.0, w + p - drying_rate(t, td, wind, sw, cfg)))
+        w = min(cfg["max_mm"], max(0.0, w + p * cfg["rain_retention"] - drying_rate(t, td, wind, sw, cfg)))
         row["wet_mm"] = w
